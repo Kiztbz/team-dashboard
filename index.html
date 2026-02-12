@@ -1,56 +1,34 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>API Test</title>
+  <title>Backend Test</title>
 </head>
+
 <body>
 
-<h2>Team Dashboard API Test</h2>
+  <h2>Vercel Backend Connection Test</h2>
 
-<button onclick="register()">Test Register</button>
-<button onclick="login()">Test Login</button>
+  <button onclick="testAPI()">Check MongoDB Connection</button>
 
-<pre id="output"></pre>
+  <pre id="output">Click the button to test...</pre>
 
-<script>
-const API = "https://team-dashboard-nu.vercel.app/api/auth";
+  <script>
+    async function testAPI() {
+      try {
+        const res = await fetch("/api/auth");
+        const data = await res.json();
 
-async function register() {
-  const res = await fetch(API + "/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      name: "Test User",
-      email: "test@test.com",
-      password: "123456",
-      role: "owner"
-    })
-  });
+        document.getElementById("output").innerText =
+          JSON.stringify(data, null, 2);
 
-  const data = await res.json();
-  document.getElementById("output").innerText =
-    JSON.stringify(data, null, 2);
-}
-
-async function login() {
-  const res = await fetch(API + "/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      email: "test@test.com",
-      password: "123456"
-    })
-  });
-
-  const data = await res.json();
-  document.getElementById("output").innerText =
-    JSON.stringify(data, null, 2);
-}
-</script>
+      } catch (err) {
+        document.getElementById("output").innerText =
+          "Error calling API: " + err.message;
+      }
+    }
+  </script>
 
 </body>
+
 </html>
