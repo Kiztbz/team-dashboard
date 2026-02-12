@@ -13,4 +13,5 @@ app.use(express.json());
 
 app.use("/api/auth", require("./routes/authRoutes"));
 
+// IMPORTANT: export for Vercel
 module.exports = serverless(app);
