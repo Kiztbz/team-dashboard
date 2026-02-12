@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API Test</title>
+</head>
+<body>
+
+<h2>Team Dashboard API Test</h2>
+
+<button onclick="register()">Test Register</button>
+<button onclick="login()">Test Login</button>
+
+<pre id="output"></pre>
+
+<script>
+const API = "https://team-dashboard-nu.vercel.app/api/auth";
+
+async function register() {
+  const res = await fetch(API + "/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: "Test User",
+      email: "test@test.com",
+      password: "123456",
+      role: "owner"
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("output").innerText =
+    JSON.stringify(data, null, 2);
+}
+
+async function login() {
+  const res = await fetch(API + "/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: "test@test.com",
+      password: "123456"
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("output").innerText =
+    JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>
