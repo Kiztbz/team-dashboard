@@ -9,7 +9,9 @@
 
   <h2>Vercel Backend Connection Test</h2>
 
+  <button onclick="createUser()">Create Test User</button>
   <button onclick="testAPI()">Check MongoDB Connection</button>
+
 
   <pre id="output">Click the button to test...</pre>
 
@@ -27,6 +29,26 @@
           "Error calling API: " + err.message;
       }
     }
+
+    async function createUser() {
+        const res = await fetch("/api/auth", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: "Test User",
+            email: "test@test.com",
+            password: "123456",
+            role: "owner"
+          })
+        });
+
+        const data = await res.json();
+        document.getElementById("output").innerText =
+          JSON.stringify(data, null, 2);
+      }
+
   </script>
 
 </body>
