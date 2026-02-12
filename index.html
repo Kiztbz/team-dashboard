@@ -2,53 +2,45 @@
 <html>
 
 <head>
-  <title>Backend Test</title>
+  <title>Team Dashboard Login</title>
 </head>
 
 <body>
 
-  <h2>Vercel Backend Connection Test</h2>
+  <h2>Login</h2>
 
-  <button onclick="createUser()">Create Test User</button>
-  <button onclick="testAPI()">Check MongoDB Connection</button>
+  <input id="email" placeholder="Email" />
+  <br /><br />
 
+  <input id="password" type="password" placeholder="Password" />
+  <br /><br />
 
-  <pre id="output">Click the button to test...</pre>
+  <button onclick="login()">Login</button>
+
+  <pre id="output"></pre>
 
   <script>
-    async function testAPI() {
-      try {
-        const res = await fetch("/api/auth");
-        const data = await res.json();
+    async function login() {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: document.getElementById("email").value,
+          password: document.getElementById("password").value
+        })
+      });
 
-        document.getElementById("output").innerText =
-          JSON.stringify(data, null, 2);
+      const data = await res.json();
 
-      } catch (err) {
-        document.getElementById("output").innerText =
-          "Error calling API: " + err.message;
+      document.getElementById("output").innerText =
+        JSON.stringify(data, null, 2);
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
       }
     }
-
-    async function createUser() {
-        const res = await fetch("/api/auth", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            name: "Test User",
-            email: "test@test.com",
-            password: "123456",
-            role: "owner"
-          })
-        });
-
-        const data = await res.json();
-        document.getElementById("output").innerText =
-          JSON.stringify(data, null, 2);
-      }
-
   </script>
 
 </body>
