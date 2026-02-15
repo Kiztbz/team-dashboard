@@ -1,42 +1,20 @@
-import { useState } from "react";
-import axios from "axios";
+const login = async () => {
+    try {
+        const res = await axios.post("/api/auth", {
+            email,
+            password
+        });
 
-export default function Login({ setUser }) {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+        const user = res.data.user;
 
-    const login = async () => {
-        try {
-            const res = await axios.post("/api/auth", {
-                email,
-                password
-            });
+        localStorage.setItem("user", JSON.stringify(user));
 
-            setUser(res.data);
+        if (user.role === "owner") window.location = "/owner";
+        if (user.role === "admin") window.location = "/admin";
+        if (user.role === "team_member") window.location = "/team";
+        if (user.role === "client") window.location = "/client";
 
-        } catch {
-            alert("Wrong credentials");
-        }
-    };
-
-    return (
-        <div style={{ padding: 40 }}>
-            <h2>Login</h2>
-
-            <input
-                placeholder="Email"
-                onChange={e => setEmail(e.target.value)}
-            />
-            <br /><br />
-
-            <input
-                type="password"
-                placeholder="Password"
-                onChange={e => setPassword(e.target.value)}
-            />
-            <br /><br />
-
-            <button onClick={login}>Login</button>
-        </div>
-    );
-}
+    } catch (err) {
+        alert("Invalid login");
+    }
+};

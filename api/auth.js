@@ -1,14 +1,21 @@
+import express from "express";
+import serverless from "serverless-http";
 import mongoose from "mongoose";
 
+const app = express();
+app.use(express.json());
+
+// Mongo connect (cached for serverless)
 let isConnected = false;
 
-async function connectDB() {
-  if (!isConnected) {
-    await mongoose.connect(process.env.MONGO_URI);
-    isConnected = true;
-  }
-}
+const connectDB = async () => {
+  if (isConnected) return;
 
+  await mongoose.connect(process.env.MONGO_URI);
+  isConnected = true;
+};
+
+// User model
 const User =
   mongoose.models.User ||
   mongoose.model(
@@ -21,23 +28,26 @@ const User =
     })
   );
 
-export default async function handler(req, res) {
-  await connectDB();
+// LOGIN ROUTE
+app.post("/", async (req, res) => {
+  try {
+    await connectDB();
 
-  if (req.method === "POST") {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email, password });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid login" });
+      return res.status(400).json({ msg: "Invalid creds" });
     }
 
-    return res.status(200).json({
-      name: user.name,
-      role: user.role
+    res.json({
+      msg: "Login success",
+      user
     });
+  } catch (err) {
+    res.status(500).json({ msg: "Server error", err });
   }
+});
 
-  res.status(405).json({ message: "Method not allowed" });
-}
+export default serverless(app);
