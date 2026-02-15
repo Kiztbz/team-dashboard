@@ -6,20 +6,25 @@ export default function Login() {
     const [password, setPassword] = useState("");
 
     const login = async () => {
-        const res = await axios.post("/api/auth", {
-            email,
-            password
-        });
+        try {
+            const res = await axios.post("/api/auth", {
+                email,
+                password
+            });
 
-        const data = res.data;
+            const data = res.data;
 
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+            // store auth
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
 
-        if (data.user.role === "owner") window.location = "/owner";
-        if (data.user.role === "admin") window.location = "/admin";
-        if (data.user.role === "team_member") window.location = "/team";
-        if (data.user.role === "client") window.location = "/client";
+            // SIMPLE redirect (no route complexity)
+            window.location.href = `/?role=${data.user.role}`;
+
+        } catch (err) {
+            alert("Login failed");
+            console.error(err);
+        }
     };
 
     return (
