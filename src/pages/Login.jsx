@@ -1,33 +1,21 @@
 import { useState } from "react";
 import axios from "axios";
 
-export default function Login() {
+export default function Login({ setUser }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
 
     const login = async () => {
         try {
-            setLoading(true);
-
             const res = await axios.post("/api/auth", {
                 email,
                 password
             });
 
-            const data = res.data;
+            setUser(res.data);
 
-            // store token ONLY
-            localStorage.setItem("token", data.token);
-
-            // reload app → App.jsx will verify token from backend
-            window.location.reload();
-
-        } catch (err) {
-            alert("Invalid email or password");
-            console.error(err);
-        } finally {
-            setLoading(false);
+        } catch {
+            alert("Wrong credentials");
         }
     };
 
@@ -48,9 +36,7 @@ export default function Login() {
             />
             <br /><br />
 
-            <button onClick={login} disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
-            </button>
+            <button onClick={login}>Login</button>
         </div>
     );
 }
