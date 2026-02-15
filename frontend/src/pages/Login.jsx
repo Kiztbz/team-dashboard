@@ -4,9 +4,12 @@ import axios from "axios";
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const login = async () => {
         try {
+            setLoading(true);
+
             const res = await axios.post("/api/auth", {
                 email,
                 password
@@ -14,16 +17,17 @@ export default function Login() {
 
             const data = res.data;
 
-            // store auth
+            // store token ONLY
             localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.user));
 
-            // SIMPLE redirect (no route complexity)
-            window.location.href = `/?role=${data.user.role}`;
+            // reload app → App.jsx will verify token from backend
+            window.location.reload();
 
         } catch (err) {
-            alert("Login failed");
+            alert("Invalid email or password");
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -44,7 +48,9 @@ export default function Login() {
             />
             <br /><br />
 
-            <button onClick={login}>Login</button>
+            <button onClick={login} disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
+            </button>
         </div>
     );
 }
