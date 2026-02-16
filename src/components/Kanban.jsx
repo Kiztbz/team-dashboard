@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import AddTask from "./AddTask";
 
 export default function Kanban({ user }) {
     const [tasks, setTasks] = useState([]);
@@ -44,13 +45,11 @@ export default function Kanban({ user }) {
 
     return (
         <div>
-            <h3>Tasks</h3>
-
             {user.role === "owner" && (
-                <button onClick={createTask}>+ Add Task</button>
+                <AddTask onCreated={loadTasks} />
             )}
 
-            <div style={{ display: "flex", gap: 20, marginTop: 20 }}>
+            <div style={{ display: "flex", gap: 20 }}>
                 {["todo", "progress", "done"].map((status) => (
                     <div key={status} style={{ flex: 1 }}>
                         <h4>{status.toUpperCase()}</h4>
@@ -58,19 +57,13 @@ export default function Kanban({ user }) {
                         {tasks
                             .filter((t) => t.status === status)
                             .map((t) => (
-                                <div
-                                    key={t._id}
-                                    style={{
-                                        background: "#fff",
-                                        padding: 10,
-                                        marginBottom: 10,
-                                        borderRadius: 6,
-                                        boxShadow: "0 0 4px rgba(0,0,0,0.1)"
-                                    }}
-                                >
+                                <div key={t._id} style={{
+                                    background: "#fff",
+                                    padding: 10,
+                                    marginBottom: 10,
+                                    borderRadius: 6
+                                }}>
                                     <b>{t.title}</b>
-                                    <p>Team: {t.assignedTo}</p>
-                                    <p>Client: {t.client}</p>
 
                                     {user.role !== "client" && (
                                         <div>
@@ -86,4 +79,5 @@ export default function Kanban({ user }) {
             </div>
         </div>
     );
+
 }
