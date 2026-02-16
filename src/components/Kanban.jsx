@@ -32,14 +32,20 @@ export default function Kanban({ user }) {
         }
     };
 
+    // responsive column wrapper
+    const boardStyle = {
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+        gap: 16
+    };
+
     const columnStyle = {
-        flex: 1,
-        padding: 16,
-        borderRadius: 18,
+        padding: 14,
+        borderRadius: 16,
         background: "rgba(255,255,255,0.03)",
         border: "1px solid rgba(255,255,255,0.05)",
         backdropFilter: "blur(10px)",
-        minHeight: "70vh"
+        minHeight: "60vh"
     };
 
     const cardStyle = {
@@ -48,18 +54,20 @@ export default function Kanban({ user }) {
         marginBottom: 12,
         borderRadius: 14,
         border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 6px 20px rgba(0,0,0,0.4)"
+        boxShadow: "0 6px 18px rgba(0,0,0,0.4)"
     };
 
     const buttonStyle = {
-        padding: "6px 10px",
+        padding: "8px 12px",
         borderRadius: 8,
         border: "none",
         marginRight: 6,
+        marginTop: 6,
         background: "linear-gradient(135deg,#22c55e,#4ade80)",
         color: "#022c22",
         fontWeight: 600,
-        cursor: "pointer"
+        cursor: "pointer",
+        width: "100%" // mobile friendly
     };
 
     const column = (status, title) => (
@@ -80,7 +88,12 @@ export default function Kanban({ user }) {
                             {t.taskId} — {t.title}
                         </div>
 
-                        <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 8 }}>
+                        <div style={{
+                            fontSize: 13,
+                            opacity: 0.8,
+                            marginBottom: 10,
+                            lineHeight: "18px"
+                        }}>
                             {t.description}
                         </div>
 
@@ -102,15 +115,15 @@ export default function Kanban({ user }) {
                         {user.role !== "client" && (
                             <div>
                                 <button style={buttonStyle} onClick={() => moveTask(t._id, "todo")}>
-                                    Todo
+                                    Move to Todo
                                 </button>
 
                                 <button style={buttonStyle} onClick={() => moveTask(t._id, "progress")}>
-                                    Progress
+                                    Move to Progress
                                 </button>
 
                                 <button style={buttonStyle} onClick={() => moveTask(t._id, "done")}>
-                                    Done
+                                    Move to Done
                                 </button>
                             </div>
                         )}
@@ -120,17 +133,14 @@ export default function Kanban({ user }) {
     );
 
     return (
-        <div style={{ padding: 30 }}>
+        <div style={{ padding: 20 }}>
             {user.role === "owner" && (
-                <div style={{ marginBottom: 30 }}>
+                <div style={{ marginBottom: 24 }}>
                     <AddTask onCreated={loadTasks} />
                 </div>
             )}
 
-            <div style={{
-                display: "flex",
-                gap: 20
-            }}>
+            <div style={boardStyle}>
                 {column("todo", "TODO")}
                 {column("progress", "IN PROGRESS")}
                 {column("done", "COMPLETED")}

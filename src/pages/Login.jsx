@@ -17,10 +17,6 @@ export default function Login({ setUser }) {
             setUser(user);
             localStorage.setItem("user", JSON.stringify(user));
 
-            if (user.role === "owner") window.location = "/owner";
-            if (user.role === "team") window.location = "/team";
-            if (user.role === "client") window.location = "/client";
-
         } catch (err) {
             alert("Login failed");
         }
