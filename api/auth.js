@@ -1,19 +1,54 @@
-import express from "express";
-import serverless from "serverless-http";
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
-const app = express();
-app.use(express.json());
+const MONGO_URI = process.env.MONGO_URI;
 
-app.post("/", (req, res) => {
+let isConnected = false;
+
+async function connectDB() {
+  if (isConnected) return;
+  await mongoose.connect(MONGO_URI);
+  isConnected = true;
+}
+
+const User =
+  mongoose.models.User ||
+  mongoose.model(
+    "User",
+    new mongoose.Schema({
+      email: String,
+      password: String,
+      role: String
+    })
+  );
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).send("Method not allowed");
+  }
+
+  await connectDB();
+
   const { email, password } = req.body;
 
-  if (email === "owner@test.com" && password === "123456") {
-    return res.json({
-      user: { email, role: "owner" }
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({
+      msg: "User not found"
     });
   }
 
-  res.status(400).json({ msg: "Invalid creds" });
-});
+  const match = await bcrypt.compare(password, user.password);
 
-export default serverless(app);
+  if (!match) {
+    return res.status(400).json({
+      msg: "Invalid credentials"
+    });
+  }
+
+  res.json({
+    email: user.email,
+    role: user.role
+  });
+}
