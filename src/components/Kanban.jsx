@@ -5,10 +5,7 @@ import AddTask from "./AddTask";
 export default function Kanban({ user }) {
     const [tasks, setTasks] = useState([]);
 
-    useEffect(() => {
-        loadTasks();
-    }, []);
-
+    // LOAD TASKS
     const loadTasks = async () => {
         try {
             const res = await axios.get("/api/tasks", {
@@ -21,21 +18,40 @@ export default function Kanban({ user }) {
         }
     };
 
+    // INITIAL LOAD + AUTO SYNC
+    useEffect(() => {
+        loadTasks();
+
+        const interval = setInterval(() => {
+            loadTasks();
+        }, 4000); // refresh every 4 sec
+
+        return () => clearInterval(interval);
+    }, []);
+
+    // INSTANT MOVE + BACKEND UPDATE
     const moveTask = async (id, status) => {
         if (user.role === "client") return;
 
+        // instant UI update
+        setTasks(prev =>
+            prev.map(t =>
+                t._id === id ? { ...t, status } : t
+            )
+        );
+
         try {
             await axios.put("/api/tasks", { id, status });
-            loadTasks();
         } catch {
             alert("Update failed");
+            loadTasks(); // revert if needed
         }
     };
 
-    // responsive column wrapper
+    // LAYOUT STYLES
     const boardStyle = {
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
         gap: 16
     };
 
@@ -45,7 +61,7 @@ export default function Kanban({ user }) {
         background: "rgba(255,255,255,0.03)",
         border: "1px solid rgba(255,255,255,0.05)",
         backdropFilter: "blur(10px)",
-        minHeight: "60vh"
+        minHeight: "65vh"
     };
 
     const cardStyle = {
@@ -61,22 +77,17 @@ export default function Kanban({ user }) {
         padding: "8px 12px",
         borderRadius: 8,
         border: "none",
-        marginRight: 6,
         marginTop: 6,
+        width: "100%",
         background: "linear-gradient(135deg,#22c55e,#4ade80)",
         color: "#022c22",
         fontWeight: 600,
-        cursor: "pointer",
-        width: "100%" // mobile friendly
+        cursor: "pointer"
     };
 
     const column = (status, title) => (
         <div style={columnStyle}>
-            <h3 style={{
-                marginBottom: 18,
-                letterSpacing: 1,
-                color: "#4ade80"
-            }}>
+            <h3 style={{ marginBottom: 18, color: "#4ade80" }}>
                 {title}
             </h3>
 
@@ -84,27 +95,22 @@ export default function Kanban({ user }) {
                 .filter(t => t.status === status)
                 .map(t => (
                     <div key={t._id} style={cardStyle}>
-                        <div style={{ fontWeight: 700, marginBottom: 6 }}>
+                        <div style={{ fontWeight: 700 }}>
                             {t.taskId} — {t.title}
                         </div>
 
-                        <div style={{
-                            fontSize: 13,
-                            opacity: 0.8,
-                            marginBottom: 10,
-                            lineHeight: "18px"
-                        }}>
+                        <div style={{ fontSize: 13, opacity: 0.8, margin: "8px 0" }}>
                             {t.description}
                         </div>
 
-                        <div style={{ fontSize: 12, marginBottom: 6 }}>
+                        <div style={{ fontSize: 12 }}>
                             <b>Team:</b>{" "}
                             {Array.isArray(t.assignedTo)
                                 ? t.assignedTo.join(", ")
                                 : t.assignedTo}
                         </div>
 
-                        <div style={{ fontSize: 12, marginBottom: 6 }}>
+                        <div style={{ fontSize: 12 }}>
                             <b>Client:</b> {t.client}
                         </div>
 
@@ -113,7 +119,7 @@ export default function Kanban({ user }) {
                         </div>
 
                         {user.role !== "client" && (
-                            <div>
+                            <>
                                 <button style={buttonStyle} onClick={() => moveTask(t._id, "todo")}>
                                     Move to Todo
                                 </button>
@@ -125,7 +131,7 @@ export default function Kanban({ user }) {
                                 <button style={buttonStyle} onClick={() => moveTask(t._id, "done")}>
                                     Move to Done
                                 </button>
-                            </div>
+                            </>
                         )}
                     </div>
                 ))}
@@ -134,12 +140,14 @@ export default function Kanban({ user }) {
 
     return (
         <div style={{ padding: 20 }}>
+            {/* OWNER TASK CREATION */}
             {user.role === "owner" && (
                 <div style={{ marginBottom: 24 }}>
                     <AddTask onCreated={loadTasks} />
                 </div>
             )}
 
+            {/* BOARD */}
             <div style={boardStyle}>
                 {column("todo", "TODO")}
                 {column("progress", "IN PROGRESS")}
