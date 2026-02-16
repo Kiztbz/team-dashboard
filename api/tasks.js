@@ -15,16 +15,19 @@ const Task =
   mongoose.model(
     "Task",
     new mongoose.Schema({
+      taskId: String,        // manual ID
       title: String,
       description: String,
-      assignedTo: [String], // multiple team emails
-      client: String,       // client email
+      assignedTo: [String],  // multiple team
+      client: String,
+      deadline: String,      // ISO date
       status: {
         type: String,
-        default: "todo" // todo | progress | done
+        default: "todo"
       }
     })
   );
+
 
 export default async function handler(req, res) {
   await connectDB();

@@ -2,11 +2,18 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 export default function AddTask({ onCreated }) {
+    const [taskId, setTaskId] = useState("");
     const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [deadline, setDeadline] = useState("");
+
     const [team, setTeam] = useState([]);
     const [clients, setClients] = useState([]);
+
     const [assignedTo, setAssignedTo] = useState([]);
     const [client, setClient] = useState("");
+    const [status, setStatus] = useState("todo");
+
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -16,10 +23,8 @@ export default function AddTask({ onCreated }) {
     const loadUsers = async () => {
         const res = await axios.get("/api/users");
 
-        const all = res.data;
-
-        setTeam(all.filter(u => u.role === "team"));
-        setClients(all.filter(u => u.role === "client"));
+        setTeam(res.data.filter(u => u.role === "team"));
+        setClients(res.data.filter(u => u.role === "client"));
     };
 
     const toggleMember = (email) => {
@@ -31,27 +36,35 @@ export default function AddTask({ onCreated }) {
     };
 
     const createTask = async () => {
-        if (!title) return alert("Task title required");
-        if (assignedTo.length === 0) return alert("Assign at least one team member");
+        if (!taskId) return alert("Task ID required");
+        if (!title) return alert("Title required");
+        if (assignedTo.length === 0) return alert("Assign team");
         if (!client) return alert("Select client");
 
         try {
             setLoading(true);
 
             await axios.post("/api/tasks", {
+                taskId,
                 title,
+                description,
                 assignedTo,
                 client,
-                status: "todo"
+                deadline,
+                status
             });
 
+            setTaskId("");
             setTitle("");
+            setDescription("");
             setAssignedTo([]);
             setClient("");
+            setDeadline("");
+            setStatus("todo");
 
             onCreated();
         } catch {
-            alert("Failed to create task");
+            alert("Task creation failed");
         } finally {
             setLoading(false);
         }
@@ -68,10 +81,25 @@ export default function AddTask({ onCreated }) {
             <h3>Create Task</h3>
 
             <input
-                placeholder="Task title"
+                placeholder="Task ID (TASK-001)"
+                value={taskId}
+                onChange={e => setTaskId(e.target.value)}
+            />
+            <br /><br />
+
+            <input
+                placeholder="Title"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
             />
+            <br /><br />
+
+            <textarea
+                placeholder="Description"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+            />
+            <br /><br />
 
             <h4>Assign Team</h4>
             {team.map(member => (
@@ -82,25 +110,45 @@ export default function AddTask({ onCreated }) {
                             checked={assignedTo.includes(member.email)}
                             onChange={() => toggleMember(member.email)}
                         />
-                        {member.name} ({member.email})
+                        {member.name}
                     </label>
                 </div>
             ))}
 
-            <h4>Select Client</h4>
+            <br />
+
+            <h4>Client</h4>
             <select value={client} onChange={e => setClient(e.target.value)}>
-                <option value="">Choose client</option>
+                <option value="">Select client</option>
                 {clients.map(c => (
                     <option key={c._id} value={c.email}>
-                        {c.name} — {c.company}
+                        {c.name}
                     </option>
                 ))}
             </select>
 
             <br /><br />
 
+            <h4>Deadline</h4>
+            <input
+                type="date"
+                value={deadline}
+                onChange={e => setDeadline(e.target.value)}
+            />
+
+            <br /><br />
+
+            <h4>Status</h4>
+            <select value={status} onChange={e => setStatus(e.target.value)}>
+                <option value="todo">Todo</option>
+                <option value="progress">In Progress</option>
+                <option value="done">Done</option>
+            </select>
+
+            <br /><br />
+
             <button onClick={createTask} disabled={loading}>
-                {loading ? "Creating..." : "Add Task"}
+                {loading ? "Creating..." : "Create Task"}
             </button>
         </div>
     );

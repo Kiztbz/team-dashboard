@@ -53,9 +53,10 @@ export default function Kanban({ user }) {
                             boxShadow: "0 0 4px rgba(0,0,0,0.1)"
                         }}
                     >
-                        <b>{t.title}</b>
+                        <b>{t.taskId} — {t.title}</b>
 
-                        {/* MULTI TEAM DISPLAY */}
+                        <p>{t.description}</p>
+
                         <p>
                             Team: {Array.isArray(t.assignedTo)
                                 ? t.assignedTo.join(", ")
@@ -63,6 +64,9 @@ export default function Kanban({ user }) {
                         </p>
 
                         <p>Client: {t.client}</p>
+
+                        <p>Deadline: {t.deadline}</p>
+
 
                         {user.role !== "client" && (
                             <div style={{ marginTop: 8 }}>
