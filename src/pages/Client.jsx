@@ -4,8 +4,10 @@ import Kanban from "../components/Kanban";
 export default function Client({ user, setUser }) {
     return (
         <Layout user={user} setUser={setUser}>
-            <h1>Client Dashboard</h1>
-            <Kanban user={user} />
+            <div className="dashboard">
+                <h1>📊 Dashboard</h1>
+                <Kanban user={user} />
+            </div>
         </Layout>
     );
 }

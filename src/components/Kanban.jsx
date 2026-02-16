@@ -12,13 +12,9 @@ export default function Kanban({ user }) {
     const loadTasks = async () => {
         try {
             const res = await axios.get("/api/tasks", {
-                params: {
-                    role: user.role,
-                    email: user.email
-                }
+                params: { role: user.role, email: user.email }
             });
 
-            // SAFETY: ensure array
             setTasks(Array.isArray(res.data) ? res.data : []);
         } catch {
             setTasks([]);
@@ -32,47 +28,90 @@ export default function Kanban({ user }) {
             await axios.put("/api/tasks", { id, status });
             loadTasks();
         } catch {
-            alert("Failed to update task");
+            alert("Update failed");
         }
     };
 
+    const columnStyle = {
+        flex: 1,
+        padding: 16,
+        borderRadius: 18,
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.05)",
+        backdropFilter: "blur(10px)",
+        minHeight: "70vh"
+    };
+
+    const cardStyle = {
+        background: "linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+        padding: 14,
+        marginBottom: 12,
+        borderRadius: 14,
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 6px 20px rgba(0,0,0,0.4)"
+    };
+
+    const buttonStyle = {
+        padding: "6px 10px",
+        borderRadius: 8,
+        border: "none",
+        marginRight: 6,
+        background: "linear-gradient(135deg,#22c55e,#4ade80)",
+        color: "#022c22",
+        fontWeight: 600,
+        cursor: "pointer"
+    };
+
     const column = (status, title) => (
-        <div style={{ flex: 1, padding: 10 }}>
-            <h3>{title}</h3>
+        <div style={columnStyle}>
+            <h3 style={{
+                marginBottom: 18,
+                letterSpacing: 1,
+                color: "#4ade80"
+            }}>
+                {title}
+            </h3>
 
             {tasks
                 .filter(t => t.status === status)
                 .map(t => (
-                    <div
-                        key={t._id}
-                        style={{
-                            background: "#fff",
-                            padding: 12,
-                            marginBottom: 10,
-                            borderRadius: 8,
-                            boxShadow: "0 0 4px rgba(0,0,0,0.1)"
-                        }}
-                    >
-                        <b>{t.taskId} — {t.title}</b>
+                    <div key={t._id} style={cardStyle}>
+                        <div style={{ fontWeight: 700, marginBottom: 6 }}>
+                            {t.taskId} — {t.title}
+                        </div>
 
-                        <p>{t.description}</p>
+                        <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 8 }}>
+                            {t.description}
+                        </div>
 
-                        <p>
-                            Team: {Array.isArray(t.assignedTo)
+                        <div style={{ fontSize: 12, marginBottom: 6 }}>
+                            <b>Team:</b>{" "}
+                            {Array.isArray(t.assignedTo)
                                 ? t.assignedTo.join(", ")
                                 : t.assignedTo}
-                        </p>
+                        </div>
 
-                        <p>Client: {t.client}</p>
+                        <div style={{ fontSize: 12, marginBottom: 6 }}>
+                            <b>Client:</b> {t.client}
+                        </div>
 
-                        <p>Deadline: {t.deadline}</p>
-
+                        <div style={{ fontSize: 12, marginBottom: 10 }}>
+                            <b>Deadline:</b> {t.deadline}
+                        </div>
 
                         {user.role !== "client" && (
-                            <div style={{ marginTop: 8 }}>
-                                <button onClick={() => moveTask(t._id, "todo")}>Todo</button>
-                                <button onClick={() => moveTask(t._id, "progress")}>Progress</button>
-                                <button onClick={() => moveTask(t._id, "done")}>Done</button>
+                            <div>
+                                <button style={buttonStyle} onClick={() => moveTask(t._id, "todo")}>
+                                    Todo
+                                </button>
+
+                                <button style={buttonStyle} onClick={() => moveTask(t._id, "progress")}>
+                                    Progress
+                                </button>
+
+                                <button style={buttonStyle} onClick={() => moveTask(t._id, "done")}>
+                                    Done
+                                </button>
                             </div>
                         )}
                     </div>
@@ -81,20 +120,20 @@ export default function Kanban({ user }) {
     );
 
     return (
-        <div>
-            {/* Only owner can create tasks */}
+        <div style={{ padding: 30 }}>
             {user.role === "owner" && (
-                <AddTask onCreated={loadTasks} />
+                <div style={{ marginBottom: 30 }}>
+                    <AddTask onCreated={loadTasks} />
+                </div>
             )}
 
             <div style={{
                 display: "flex",
-                gap: 20,
-                marginTop: 20
+                gap: 20
             }}>
-                {column("todo", "Todo")}
-                {column("progress", "In Progress")}
-                {column("done", "Done")}
+                {column("todo", "TODO")}
+                {column("progress", "IN PROGRESS")}
+                {column("done", "COMPLETED")}
             </div>
         </div>
     );

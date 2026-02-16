@@ -71,55 +71,42 @@ export default function AddTask({ onCreated }) {
     };
 
     return (
-        <div style={{
-            background: "#fff",
-            padding: 20,
-            borderRadius: 10,
-            boxShadow: "0 0 6px rgba(0,0,0,0.1)",
-            marginBottom: 20
-        }}>
-            <h3>Create Task</h3>
+        <div className="card">
+            <h3>🚀 Create New Task</h3>
 
-            <input
-                placeholder="Task ID (TASK-001)"
+            <input className="input"
+                placeholder="Task ID"
                 value={taskId}
                 onChange={e => setTaskId(e.target.value)}
             />
-            <br /><br />
 
-            <input
+            <input className="input"
                 placeholder="Title"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
             />
-            <br /><br />
 
-            <textarea
+            <textarea className="input"
                 placeholder="Description"
                 value={description}
                 onChange={e => setDescription(e.target.value)}
             />
-            <br /><br />
 
-            <h4>Assign Team</h4>
+            <h4>Team</h4>
             {team.map(member => (
-                <div key={member._id}>
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={assignedTo.includes(member.email)}
-                            onChange={() => toggleMember(member.email)}
-                        />
-                        {member.name}
-                    </label>
-                </div>
+                <label key={member._id}>
+                    <input
+                        type="checkbox"
+                        checked={assignedTo.includes(member.email)}
+                        onChange={() => toggleMember(member.email)}
+                    />
+                    {" "} {member.name}
+                </label>
             ))}
 
-            <br />
-
             <h4>Client</h4>
-            <select value={client} onChange={e => setClient(e.target.value)}>
-                <option value="">Select client</option>
+            <select className="input" value={client} onChange={e => setClient(e.target.value)}>
+                <option value="">Select</option>
                 {clients.map(c => (
                     <option key={c._id} value={c.email}>
                         {c.name}
@@ -127,29 +114,18 @@ export default function AddTask({ onCreated }) {
                 ))}
             </select>
 
-            <br /><br />
-
             <h4>Deadline</h4>
             <input
+                className="input"
                 type="date"
                 value={deadline}
                 onChange={e => setDeadline(e.target.value)}
             />
 
-            <br /><br />
-
-            <h4>Status</h4>
-            <select value={status} onChange={e => setStatus(e.target.value)}>
-                <option value="todo">Todo</option>
-                <option value="progress">In Progress</option>
-                <option value="done">Done</option>
-            </select>
-
-            <br /><br />
-
-            <button onClick={createTask} disabled={loading}>
-                {loading ? "Creating..." : "Create Task"}
+            <button className="button" onClick={createTask}>
+                Create Task
             </button>
         </div>
     );
+
 }
