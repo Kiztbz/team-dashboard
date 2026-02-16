@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 
+const MONGO_URI = process.env.MONGO_URI;
+
 let isConnected = false;
 
 async function connectDB() {
   if (isConnected) return;
-
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(MONGO_URI);
   isConnected = true;
 }
 
@@ -15,9 +16,13 @@ const Task =
     "Task",
     new mongoose.Schema({
       title: String,
-      assignedTo: String,
-      status: String,
-      progress: Number
+      description: String,
+      assignedTo: String,   // team email
+      client: String,       // client email
+      status: {
+        type: String,
+        default: "todo" // todo | progress | done
+      }
     })
   );
 
@@ -25,7 +30,14 @@ export default async function handler(req, res) {
   await connectDB();
 
   if (req.method === "GET") {
-    const tasks = await Task.find();
+    const { role, email } = req.query;
+
+    let tasks;
+
+    if (role === "owner") tasks = await Task.find();
+    if (role === "team") tasks = await Task.find({ assignedTo: email });
+    if (role === "client") tasks = await Task.find({ client: email });
+
     return res.json(tasks);
   }
 
@@ -35,13 +47,9 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "PUT") {
-    const task = await Task.findByIdAndUpdate(
-      req.query.id,
-      req.body,
-      { new: true }
-    );
-    return res.json(task);
-  }
+    const { id, status } = req.body;
 
-  res.status(405).json({ msg: "Method not allowed" });
+    await Task.findByIdAndUpdate(id, { status });
+    return res.json({ msg: "Updated" });
+  }
 }
