@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 
+const MONGO_URI = process.env.MONGO_URI;
+
 let isConnected = false;
 
 async function connectDB() {
   if (isConnected) return;
 
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(MONGO_URI);
   isConnected = true;
 }
 
@@ -21,28 +23,25 @@ const User =
   );
 
 export default async function handler(req, res) {
-  await connectDB();
+  if (req.method !== "POST") return res.status(405).send("Method not allowed");
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ msg: "Method not allowed" });
-  }
+  await connectDB();
 
   const { email, password } = req.body;
 
   let user = await User.findOne({ email });
 
-  // auto-create user if not exist
+  // if user not found → auto create
   if (!user) {
     user = await User.create({
       email,
       password,
-      role: "team_member"
+      role: "team"
     });
   }
 
-  if (user.password !== password) {
-    return res.status(400).json({ msg: "Wrong password" });
-  }
+  if (user.password !== password)
+    return res.status(400).json({ msg: "Invalid credentials" });
 
   res.json(user);
 }

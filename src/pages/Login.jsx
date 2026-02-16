@@ -4,14 +4,12 @@ import axios from "axios";
 export default function Login({ setUser }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [role, setRole] = useState("team");
 
     const login = async () => {
         try {
             const res = await axios.post("/api/login", {
                 email,
-                password,
-                role
+                password
             });
 
             const user = res.data;
@@ -19,14 +17,12 @@ export default function Login({ setUser }) {
             setUser(user);
             localStorage.setItem("user", JSON.stringify(user));
 
-            // simple routing
             if (user.role === "owner") window.location = "/owner";
-            else if (user.role === "admin") window.location = "/admin";
-            else if (user.role === "team") window.location = "/team";
-            else if (user.role === "client") window.location = "/client";
+            if (user.role === "team") window.location = "/team";
+            if (user.role === "client") window.location = "/client";
 
         } catch (err) {
-            alert("Invalid credentials");
+            alert("Login failed");
         }
     };
 
@@ -47,16 +43,6 @@ export default function Login({ setUser }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
             />
-            <br /><br />
-
-            {/* role selector */}
-            <select value={role} onChange={(e) => setRole(e.target.value)}>
-                <option value="team">Team</option>
-                <option value="client">Client</option>
-                <option value="admin">Admin</option>
-                <option value="owner">Owner</option>
-            </select>
-
             <br /><br />
 
             <button onClick={login}>Login</button>
