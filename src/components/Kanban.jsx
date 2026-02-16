@@ -15,7 +15,8 @@ export default function Kanban({ user }) {
                 email: user.email
             }
         });
-        setTasks(res.data);
+        if (!Array.isArray(tasks)) return <div>Loading tasks...</div>;
+        setTasks(Array.isArray(res.data) ? res.data : []);
     };
 
     const moveTask = async (id, status) => {
