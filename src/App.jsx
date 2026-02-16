@@ -31,7 +31,7 @@ export default function App() {
             />
         );
 
-    if (user.role === "team_member")
+    if (user.role === "team")
         return (
             <Team
                 user={user}
