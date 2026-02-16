@@ -53,7 +53,7 @@ export default function Login({ setUser }) {
                 }}>
                     <h2 style={{
                         marginBottom: 20,
-                        color: "#4ade80",
+                        color: "white",
                         letterSpacing: 1
                     }}>
                         Developer Portal
@@ -92,7 +92,7 @@ export default function Login({ setUser }) {
 }
 
 const inputStyle = {
-    width: "100%",
+    width: "90%",
     padding: 12,
     marginBottom: 14,
     borderRadius: 10,
@@ -107,8 +107,8 @@ const buttonStyle = {
     padding: 12,
     borderRadius: 12,
     border: "none",
-    background: "linear-gradient(135deg,#22c55e,#4ade80)",
-    color: "#022c22",
+    background: "#26786f",
+    color: "white",
     fontWeight: 700,
     cursor: "pointer",
     marginTop: 8
