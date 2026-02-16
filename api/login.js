@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -30,7 +31,7 @@ export default async function handler(req, res) {
 
   const { email, password } = req.body;
 
-  // 🔹 check user exists
+  // check user exists
   const user = await User.findOne({ email });
 
   if (!user) {
@@ -39,13 +40,18 @@ export default async function handler(req, res) {
     });
   }
 
-  // 🔹 check password
-  if (user.password !== password) {
+  // 🔐 compare plain password with hashed DB password
+  const match = await bcrypt.compare(password, user.password);
+
+  if (!match) {
     return res.status(400).json({
       msg: "Invalid credentials"
     });
   }
 
-  // 🔹 success
-  res.json(user);
+  // success
+  res.json({
+    email: user.email,
+    role: user.role
+  });
 }
