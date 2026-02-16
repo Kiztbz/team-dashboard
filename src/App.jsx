@@ -1,18 +1,54 @@
 import { useState } from "react";
-
-import Login from "./pages/Login.jsx";
-import Owner from "./pages/Owner.jsx";
-import Admin from "./pages/Admin.jsx";
-import Team from "./pages/Team.jsx";
-import Client from "./pages/Client.jsx";
+import Login from "./pages/Login";
+import Owner from "./pages/Owner";
+import Team from "./pages/Team";
+import Client from "./pages/Client";
 
 export default function App() {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(
+        JSON.parse(localStorage.getItem("user"))
+    );
+
+    const [tasks, setTasks] = useState(
+        JSON.parse(localStorage.getItem("tasks")) || []
+    );
+
+    // keep tasks persistent
+    const updateTasks = (newTasks) => {
+        setTasks(newTasks);
+        localStorage.setItem("tasks", JSON.stringify(newTasks));
+    };
 
     if (!user) return <Login setUser={setUser} />;
 
-    if (user.role === "owner") return <Owner />;
-    if (user.role === "admin") return <Admin />;
-    if (user.role === "team_member") return <Team />;
-    if (user.role === "client") return <Client />;
+    if (user.role === "owner")
+        return (
+            <Owner
+                user={user}
+                setUser={setUser}
+                tasks={tasks}
+                updateTasks={updateTasks}
+            />
+        );
+
+    if (user.role === "team_member")
+        return (
+            <Team
+                user={user}
+                setUser={setUser}
+                tasks={tasks}
+                updateTasks={updateTasks}
+            />
+        );
+
+    if (user.role === "client")
+        return (
+            <Client
+                user={user}
+                setUser={setUser}
+                tasks={tasks}
+            />
+        );
+
+    return <div>No role</div>;
 }

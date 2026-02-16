@@ -1,20 +1,65 @@
-const login = async () => {
-    try {
-        const res = await axios.post("/api/auth", {
-            email,
-            password
-        });
+import { useState } from "react";
+import axios from "axios";
 
-        const user = res.data.user;
+export default function Login({ setUser }) {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [role, setRole] = useState("team");
 
-        localStorage.setItem("user", JSON.stringify(user));
+    const login = async () => {
+        try {
+            const res = await axios.post("/api/login", {
+                email,
+                password,
+                role
+            });
 
-        if (user.role === "owner") window.location = "/owner";
-        if (user.role === "admin") window.location = "/admin";
-        if (user.role === "team_member") window.location = "/team";
-        if (user.role === "client") window.location = "/client";
+            const user = res.data;
 
-    } catch (err) {
-        alert("Invalid login");
-    }
-};
+            setUser(user);
+            localStorage.setItem("user", JSON.stringify(user));
+
+            // simple routing
+            if (user.role === "owner") window.location = "/owner";
+            else if (user.role === "admin") window.location = "/admin";
+            else if (user.role === "team") window.location = "/team";
+            else if (user.role === "client") window.location = "/client";
+
+        } catch (err) {
+            alert("Invalid credentials");
+        }
+    };
+
+    return (
+        <div style={{ padding: 40 }}>
+            <h2>Login</h2>
+
+            <input
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            <br /><br />
+
+            <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            <br /><br />
+
+            {/* role selector */}
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+                <option value="team">Team</option>
+                <option value="client">Client</option>
+                <option value="admin">Admin</option>
+                <option value="owner">Owner</option>
+            </select>
+
+            <br /><br />
+
+            <button onClick={login}>Login</button>
+        </div>
+    );
+}
