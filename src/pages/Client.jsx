@@ -1,11 +1,11 @@
+import Layout from "../components/Layout";
 import Kanban from "../components/Kanban";
 
-export default function Client({ user }) {
+export default function Client({ user, setUser }) {
     return (
-        <div style={{ padding: 30 }}>
-            <h1>Client Portal</h1>
-
+        <Layout user={user} setUser={setUser}>
+            <h1>Client Dashboard</h1>
             <Kanban user={user} />
-        </div>
+        </Layout>
     );
 }

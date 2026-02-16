@@ -1,13 +1,11 @@
+import Layout from "../components/Layout";
 import Kanban from "../components/Kanban";
 
-export default function Owner({ user }) {
+export default function Owner({ user, setUser }) {
     return (
-        <div style={{ padding: 30 }}>
+        <Layout user={user} setUser={setUser}>
             <h1>Owner Dashboard</h1>
-
-            <p>Welcome {user.email}</p>
-
             <Kanban user={user} />
-        </div>
+        </Layout>
     );
 }

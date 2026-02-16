@@ -3,7 +3,6 @@ import Login from "./pages/Login";
 import Owner from "./pages/Owner";
 import Team from "./pages/Team";
 import Client from "./pages/Client";
-import Kanban from "./pages/Kanban";
 
 export default function App() {
     const [user, setUser] = useState(
