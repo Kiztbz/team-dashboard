@@ -1,9 +1,11 @@
-import Layout from "../components/Layout";
+import Kanban from "../components/Kanban";
 
-export default function Team({ user, setUser }) {
+export default function Team({ user }) {
     return (
-        <Layout user={user} setUser={setUser}>
+        <div style={{ padding: 30 }}>
             <h1>Team Dashboard</h1>
-        </Layout>
+
+            <Kanban user={user} />
+        </div>
     );
 }
