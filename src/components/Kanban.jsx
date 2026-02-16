@@ -10,74 +10,88 @@ export default function Kanban({ user }) {
     }, []);
 
     const loadTasks = async () => {
-        const res = await axios.get("/api/tasks", {
-            params: {
-                role: user.role,
-                email: user.email
-            }
-        });
-        if (!Array.isArray(tasks)) return <div>Loading tasks...</div>;
-        setTasks(Array.isArray(res.data) ? res.data : []);
+        try {
+            const res = await axios.get("/api/tasks", {
+                params: {
+                    role: user.role,
+                    email: user.email
+                }
+            });
+
+            // SAFETY: ensure array
+            setTasks(Array.isArray(res.data) ? res.data : []);
+        } catch {
+            setTasks([]);
+        }
     };
 
     const moveTask = async (id, status) => {
         if (user.role === "client") return;
-        await axios.put("/api/tasks", { id, status });
-        loadTasks();
+
+        try {
+            await axios.put("/api/tasks", { id, status });
+            loadTasks();
+        } catch {
+            alert("Failed to update task");
+        }
     };
 
-    const createTask = async () => {
-        if (user.role !== "owner") return;
+    const column = (status, title) => (
+        <div style={{ flex: 1, padding: 10 }}>
+            <h3>{title}</h3>
 
-        const title = prompt("Task title");
-        const assignedTo = prompt("Team email");
-        const client = prompt("Client email");
+            {tasks
+                .filter(t => t.status === status)
+                .map(t => (
+                    <div
+                        key={t._id}
+                        style={{
+                            background: "#fff",
+                            padding: 12,
+                            marginBottom: 10,
+                            borderRadius: 8,
+                            boxShadow: "0 0 4px rgba(0,0,0,0.1)"
+                        }}
+                    >
+                        <b>{t.title}</b>
 
-        await axios.post("/api/tasks", {
-            title,
-            assignedTo,
-            client,
-            status: "todo"
-        });
+                        {/* MULTI TEAM DISPLAY */}
+                        <p>
+                            Team: {Array.isArray(t.assignedTo)
+                                ? t.assignedTo.join(", ")
+                                : t.assignedTo}
+                        </p>
 
-        loadTasks();
-    };
+                        <p>Client: {t.client}</p>
+
+                        {user.role !== "client" && (
+                            <div style={{ marginTop: 8 }}>
+                                <button onClick={() => moveTask(t._id, "todo")}>Todo</button>
+                                <button onClick={() => moveTask(t._id, "progress")}>Progress</button>
+                                <button onClick={() => moveTask(t._id, "done")}>Done</button>
+                            </div>
+                        )}
+                    </div>
+                ))}
+        </div>
+    );
 
     return (
         <div>
+            {/* Only owner can create tasks */}
             {user.role === "owner" && (
                 <AddTask onCreated={loadTasks} />
             )}
 
-            <div style={{ display: "flex", gap: 20 }}>
-                {["todo", "progress", "done"].map((status) => (
-                    <div key={status} style={{ flex: 1 }}>
-                        <h4>{status.toUpperCase()}</h4>
-
-                        {tasks
-                            .filter((t) => t.status === status)
-                            .map((t) => (
-                                <div key={t._id} style={{
-                                    background: "#fff",
-                                    padding: 10,
-                                    marginBottom: 10,
-                                    borderRadius: 6
-                                }}>
-                                    <b>{t.title}</b>
-
-                                    {user.role !== "client" && (
-                                        <div>
-                                            <button onClick={() => moveTask(t._id, "todo")}>Todo</button>
-                                            <button onClick={() => moveTask(t._id, "progress")}>Progress</button>
-                                            <button onClick={() => moveTask(t._id, "done")}>Done</button>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                    </div>
-                ))}
+            <div style={{
+                display: "flex",
+                gap: 20,
+                marginTop: 20
+            }}>
+                {column("todo", "Todo")}
+                {column("progress", "In Progress")}
+                {column("done", "Done")}
             </div>
         </div>
     );
-
 }

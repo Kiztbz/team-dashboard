@@ -17,7 +17,7 @@ const Task =
     new mongoose.Schema({
       title: String,
       description: String,
-      assignedTo: String,   // team email
+      assignedTo: [String], // multiple team emails
       client: String,       // client email
       status: {
         type: String,
